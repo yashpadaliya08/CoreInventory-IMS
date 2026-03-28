@@ -29,6 +29,9 @@
         </div>
         
         <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('receipts.pdf', $receipt) }}" class="btn btn-outline-primary d-flex align-items-center gap-2 fw-bold" style="height: 48px; border-radius: 10px;" target="_blank">
+                <i data-feather="file-text" style="width: 16px;"></i> Download PDF
+            </a>
             @if($receipt->status !== 'Done')
                 @if(auth()->user() && auth()->user()->isManagerOrAbove())
                 <a href="{{ route('receipts.edit', $receipt) }}" class="btn btn-outline-secondary d-flex align-items-center gap-2 fw-bold" style="height: 48px; border-radius: 10px;">

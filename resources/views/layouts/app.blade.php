@@ -117,6 +117,20 @@
         <!-- Guest Content (Login/Register) -->
         <main class="w-100 d-flex justify-content-center align-items-center" style="min-height: 100vh;">
             <div class="fade-in w-100">
+                @if(session('status'))
+                    <div class="alert alert-success alert-dismissible fade show border-0 mx-auto mb-3" role="alert" style="max-width: 520px; background: rgba(209, 250, 229, 0.95); border-radius: 12px;">
+                        <i data-feather="check-circle" class="me-2" style="width: 18px; height: 18px; stroke: #059669;"></i>
+                        <span style="color: #065f46; font-weight: 500;">{{ session('status') }}</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+                @if(session('error') || $errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mx-auto mb-3" role="alert" style="max-width: 520px; background: rgba(254, 226, 226, 0.95); border-radius: 12px;">
+                        <i data-feather="alert-circle" class="me-2" style="width: 18px; height: 18px; stroke: #dc2626;"></i>
+                        <span style="color: #991b1b; font-weight: 500;">{{ session('error') ?? $errors->first() }}</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 @yield('content')
             </div>
         </main>

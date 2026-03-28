@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use App\Mail\OtpMail;
 
 class AuthController extends Controller
 {
@@ -65,7 +67,7 @@ class AuthController extends Controller
         $user = User::create([
             'name'     => $validated['name'],
             'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'password' => $validated['password'],
             'role'     => 'staff', // All self-registered accounts start as read-only staff
         ]);
 
@@ -112,11 +114,17 @@ class AuthController extends Controller
             'otp_expires_at' => now()->addMinutes(10),
         ]);
 
-        // Log OTP for development — replace with Mail::to($user)->send(new OtpMail($otp)) in production
-        Log::info("CoreInventory OTP for [{$request->email}]: {$otp}");
+        // Send OTP via email
+        try {
+            Mail::to($user->email)->send(new OtpMail($otp, $user->name));
+        } catch (\Exception $e) {
+            Log::error('OTP email failed: ' . $e->getMessage());
+            return back()->withErrors(['email' => 'Failed to send OTP email. Please try again.']);
+        }
 
         return redirect()->route('otp.verify.form')
-            ->with('status', 'An OTP has been dispatched. Check the application log for now.');
+            ->with('otp_email', $request->email)
+            ->with('status', 'A 6-digit verification code has been sent to your email address.');
     }
 
     /**
@@ -146,12 +154,12 @@ class AuthController extends Controller
             || $user->otp_expires_at === null
             || now()->greaterThan($user->otp_expires_at)
         ) {
-            return back()->withErrors(['otp' => 'The OTP is invalid or has expired.']);
+            return back()->withInput()->withErrors(['otp' => 'The OTP is invalid or has expired.']);
         }
 
         // Reset password and atomically clear OTP fields
         $user->update([
-            'password'       => Hash::make($request->password),
+            'password'       => $request->password,
             'otp_code'       => null,
             'otp_expires_at' => null,
         ]);
@@ -159,8 +167,12 @@ class AuthController extends Controller
         // Clear rate limiter after successful password reset
         RateLimiter::clear('otp-request:' . Str::lower($request->email));
 
-        return redirect()->route('login')
-            ->with('status', 'Password has been reset successfully. Please log in.');
+        // Automatically log the user in to remove the extra login step
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Your password has been reset successfully.');
     }
 
     /**

@@ -204,5 +204,90 @@
             </div>
         </div>
     </div>
+
+    <!-- ── SECOND ROW: Company Profile & Product Categories ── -->
+    <div class="row g-4 mt-1">
+        
+        <!-- COMPANY PROFILE ROW -->
+        <div class="col-lg-7">
+            <div class="glass-panel p-4 mb-4" style="background: rgba(16, 185, 129, 0.03); border-color: rgba(16, 185, 129, 0.15);">
+                <h5 class="fw-bold mb-4 d-flex align-items-center" style="font-family: 'Outfit'; color: #059669;">
+                    <i data-feather="briefcase" class="me-2" style="width: 22px;"></i> Company Profile
+                </h5>
+                <form action="{{ route('settings.company.update') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Company Name</label>
+                            <input type="text" name="company_name" class="form-control form-glass" value="{{ $company['company_name'] }}" placeholder="Your Company Ltd.">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Tax ID / VAT</label>
+                            <input type="text" name="tax_id" class="form-control form-glass" value="{{ $company['tax_id'] }}" placeholder="Tax Registration...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Contact Phone</label>
+                            <input type="text" name="phone" class="form-control form-glass" value="{{ $company['phone'] }}" placeholder="+1 234 ...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Contact Email</label>
+                            <input type="email" name="email" class="form-control form-glass" value="{{ $company['email'] }}" placeholder="info@company.com">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Headquarters Address</label>
+                            <textarea name="address" class="form-control form-glass" rows="2" style="height: auto;">{{ $company['address'] }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn mt-4 w-100 d-flex justify-content-center align-items-center gap-2" style="background: rgba(15,23,42,0.9); color: white; font-weight: 600; height: 48px; border-radius: 12px; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='rgba(15,23,42,0.9)'">
+                        <i data-feather="save" style="width: 18px;"></i> Save Company Profile
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PRODUCT CATEGORIES -->
+        <div class="col-lg-5">
+            <div class="glass-panel p-4 mb-4" style="background: rgba(245, 158, 11, 0.03); border-color: rgba(245, 158, 11, 0.15);">
+                <h5 class="fw-bold mb-4 d-flex align-items-center" style="font-family: 'Outfit'; color: #d97706;">
+                    <i data-feather="tag" class="me-2" style="width: 22px;"></i> Product Categories
+                </h5>
+                <form action="{{ route('settings.category.store') }}" method="POST" class="mb-4">
+                    @csrf
+                    <div class="d-flex gap-2 mb-2">
+                        <input type="text" name="name" class="form-control form-glass flex-grow-1" required placeholder="New Category Name">
+                        <button type="submit" class="btn btn-primary d-flex align-items-center" style="height: 44px; border-radius: 8px;">
+                            <i data-feather="plus" style="width: 18px;"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <tbody>
+                            @forelse($categories as $cat)
+                                <tr>
+                                    <td class="fw-bold" style="color: var(--text-main);">{{ $cat->name }}</td>
+                                    <td class="text-end">
+                                        <form action="{{ route('settings.category.destroy', $cat) }}" method="POST" onsubmit="return confirm('Delete this category?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="action-btn del" title="Delete Category" style="width: 28px; height: 28px;">
+                                                <i data-feather="trash-2" style="width: 14px;"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="2" class="text-muted small py-3"><i data-feather="info" style="width: 14px; margin-right: 4px;"></i> No categories defined.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

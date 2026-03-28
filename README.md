@@ -62,3 +62,25 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 admin@coreinventory.local   → Admin@12345
 manager@coreinventory.local → Manager@12345
 staff@coreinventory.local   → Staff@12345
+
+1. Vendor & Purchase Order Management (Procurement)
+Right now, you receive goods, but you aren't tracking who you buy them from. You could add:
+
+A Vendors or Suppliers table.
+A Purchase Order (PO) system. When a PO is approved, it automatically generates a Receipt draft.
+Tracking of purchasing costs vs. selling prices for basic profit calculation.
+
+2. Barcode & QR Code Integration
+For a physical warehouse, manual entry is slow.
+
+Generation: Automatically generate and print Barcode/QR labels for every Product.
+
+4. Excel / CSV Exporting (Deep Reporting)
+PDF manifests are great for discrete physical deliveries, but accountants love Excel.
+
+Use maatwebsite/excel to add a "Download CSV" button to the Stock Ledger, Products List, and Activity logs so managers can run pivot tables externally.
+
+5. Activity Audit Log
+In larger warehouses, accountability is key.
+
+You could add an audit_logs table (or use spatie/laravel-activitylog) to silently record whenever an admin changes settings or a manager validates a stock adjustment (e.g., "John Doe adjusted 50 units of Item X due to User Error").
