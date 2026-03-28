@@ -114,6 +114,56 @@
         .page-header form { width: 100%; }
         .page-header select { width: 100%; }
     }
+    
+    /* Charts */
+    .chart-card {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.8);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        opacity: 0;
+    }
+    
+    .chart-title {
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .stat-row:last-child {
+        border-bottom: none;
+    }
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .stat-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+    .delay-6 { animation-delay: 0.6s; }
+    .delay-7 { animation-delay: 0.7s; }
+    .delay-8 { animation-delay: 0.8s; }
+    .delay-9 { animation-delay: 0.9s; }
 </style>
 @endpush
 
@@ -206,4 +256,216 @@
         </div>
     </div>
 </div>
+
+<!-- Charts Section Row 1 -->
+<div class="row g-4 mb-4">
+    <!-- Trend Chart -->
+    <div class="col-xl-8">
+        <div class="chart-card delay-6">
+            <h3 class="chart-title">Stock Movement — Last 30 Days</h3>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Category Doughnut -->
+    <div class="col-xl-4">
+        <div class="chart-card delay-7">
+            <h3 class="chart-title">Products by Category</h3>
+            <div style="position: relative; height: 280px; width: 100%;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section Row 2 -->
+<div class="row g-4 mb-4">
+    <!-- Low Stock Bar Chart -->
+    <div class="col-xl-8">
+        <div class="chart-card delay-8">
+            <h3 class="chart-title">Low Stock Monitor</h3>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="stockChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="col-xl-4">
+        <div class="chart-card delay-9 h-100">
+            <h3 class="chart-title mb-0">Recent Activity Summary</h3>
+            
+            <div class="stat-row">
+                <div class="stat-icon" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
+                    <i data-feather="download"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Receipts Validated</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">{{ number_format($recentActivity['receipts']) }}</div>
+                </div>
+            </div>
+            
+            <div class="stat-row">
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                    <i data-feather="upload"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Deliveries Completed</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">{{ number_format($recentActivity['deliveries']) }}</div>
+                </div>
+            </div>
+            
+            <div class="stat-row">
+                <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                    <i data-feather="repeat"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Transfers Executed</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">{{ number_format($recentActivity['transfers']) }}</div>
+                </div>
+            </div>
+            
+            <div class="stat-row">
+                <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                    <i data-feather="sliders"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Adjustments Applied</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">{{ number_format($recentActivity['adjustments']) }}</div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    const trendLabels = @json($trendLabels);
+    const trendIn     = @json($trendIn);
+    const trendOut    = @json($trendOut);
+    const categoryLabels = @json($categoryLabels);
+    const categoryCounts = @json($categoryCounts);
+    const stockLabels   = @json($stockLabels);
+    const stockCurrent  = @json($stockCurrent);
+    const stockReorder  = @json($stockReorder);
+
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+
+    // 1. Trend Line Chart
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: trendLabels,
+            datasets: [
+                {
+                    label: 'Stock In',
+                    data: trendIn,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Stock Out',
+                    data: trendOut,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                x: {
+                    grid: { display: false }
+                },
+                y: {
+                    grid: { color: 'rgba(0,0,0,0.05)', borderDash: [5, 5] },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // 2. Category Doughnut Chart
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                data: categoryCounts,
+                backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#0ea5e9'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { padding: 20 }
+                }
+            }
+        }
+    });
+
+    // 3. Low Stock Bar Chart
+    new Chart(document.getElementById('stockChart'), {
+        type: 'bar',
+        data: {
+            labels: stockLabels,
+            datasets: [
+                {
+                    label: 'Current Stock',
+                    data: stockCurrent,
+                    backgroundColor: stockCurrent.map((val, idx) => val < stockReorder[idx] ? '#ef4444' : '#10b981'),
+                    borderRadius: 4
+                },
+                {
+                    label: 'Reorder Level',
+                    data: stockReorder,
+                    type: 'line',
+                    borderColor: '#f59e0b',
+                    backgroundColor: '#f59e0b',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    showLine: false
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0,0,0,0.05)', borderDash: [5, 5] },
+                    beginAtZero: true
+                },
+                y: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+</script>
+@endpush

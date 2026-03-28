@@ -49,10 +49,9 @@
                                 <i data-feather="tag" style="position: absolute; top: 14px; left: 14px; color: var(--text-muted); width: 18px;"></i>
                                 <select name="category" class="form-select form-glass" style="padding-left: 42px;" required>
                                     <option value="">Select Category...</option>
-                                    <option value="Raw Materials">Raw Materials</option>
-                                    <option value="Finished Goods">Finished Goods</option>
-                                    <option value="Components">Components</option>
-                                    <option value="Packaging">Packaging</option>
+                                    @foreach($categories as $catName)
+                                        <option value="{{ $catName }}">{{ $catName }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>

@@ -21,7 +21,7 @@
                     <label class="form-label mb-2" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px;">Email Address</label>
                     <div class="position-relative">
                         <i data-feather="mail" style="position: absolute; top: 12px; left: 14px; color: var(--text-muted); width: 18px;"></i>
-                        <input type="email" name="email" class="form-control text-muted" style="padding-left: 42px; height: 48px; background: rgba(0,0,0,0.02); border-color: transparent;" value="{{ session('otp_email') }}" readonly required>
+                        <input type="email" name="email" class="form-control" style="padding-left: 42px; height: 48px; background: rgba(255,255,255,0.9);" value="{{ old('email', session('otp_email')) }}" required placeholder="you@example.com">
                     </div>
                 </div>
 

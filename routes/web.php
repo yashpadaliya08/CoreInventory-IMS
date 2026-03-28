@@ -63,9 +63,11 @@ Route::middleware('auth')->group(function () {
 
         Route::get('receipts',              [ReceiptController::class, 'index'])->name('receipts.index');
         Route::get('receipts/{receipt}',    [ReceiptController::class, 'show'])->name('receipts.show')->whereNumber('receipt');
+        Route::get('receipts/{receipt}/pdf', [ReceiptController::class, 'downloadPdf'])->name('receipts.pdf')->whereNumber('receipt');
 
         Route::get('deliveries',              [DeliveryController::class, 'index'])->name('deliveries.index');
         Route::get('deliveries/{delivery}',   [DeliveryController::class, 'show'])->name('deliveries.show')->whereNumber('delivery');
+        Route::get('deliveries/{delivery}/pdf', [DeliveryController::class, 'downloadPdf'])->name('deliveries.pdf')->whereNumber('delivery');
 
         Route::get('transfers',             [TransferController::class, 'index'])->name('transfers.index');
         Route::get('transfers/{transfer}',  [TransferController::class, 'show'])->name('transfers.show')->whereNumber('transfer');
@@ -135,6 +137,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('/settings/warehouse/{warehouse}', [SettingController::class, 'destroyWarehouse'])->name('settings.warehouse.destroy');
         Route::post('/settings/location',                [SettingController::class, 'storeLocation'])->name('settings.location.store');
         Route::delete('/settings/location/{location}',  [SettingController::class, 'destroyLocation'])->name('settings.location.destroy');
+
+        // Company profile
+        Route::post('/settings/company',                 [SettingController::class, 'updateCompany'])->name('settings.company.update');
+
+        // Product categories
+        Route::post('/settings/category',                [SettingController::class, 'storeCategory'])->name('settings.category.store');
+        Route::delete('/settings/category/{category}',   [SettingController::class, 'destroyCategory'])->name('settings.category.destroy');
 
         // User management panel
         Route::resource('users', UserManagementController::class)->only(['index', 'edit', 'update', 'destroy']);

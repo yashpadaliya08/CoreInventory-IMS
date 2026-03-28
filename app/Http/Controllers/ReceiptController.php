@@ -7,6 +7,7 @@ use App\Models\ReceiptItem;
 use App\Models\Product;
 use App\Models\Location;
 use App\Models\StockLedger;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -184,5 +185,18 @@ class ReceiptController extends Controller
             return redirect()->route('receipts.show', $receipt)
                 ->with('success', 'Receipt validated. Stock ledger updated.');
         });
+    }
+
+    /**
+     * Download a PDF manifest for the specified receipt.
+     */
+    public function downloadPdf(Receipt $receipt)
+    {
+        $receipt->load('receiptItems.product');
+
+        $pdf = Pdf::loadView('pdf.receipt', compact('receipt'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->download("Receipt-{$receipt->reference_no}.pdf");
     }
 }

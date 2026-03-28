@@ -7,6 +7,7 @@ use App\Models\DeliveryItem;
 use App\Models\Product;
 use App\Models\Location;
 use App\Models\StockLedger;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -200,5 +201,18 @@ class DeliveryController extends Controller
             return redirect()->route('deliveries.show', $delivery)
                 ->with('success', 'Delivery validated. Stock ledger updated.');
         });
+    }
+
+    /**
+     * Download a PDF manifest for the specified delivery.
+     */
+    public function downloadPdf(Delivery $delivery)
+    {
+        $delivery->load('deliveryItems.product');
+
+        $pdf = Pdf::loadView('pdf.delivery', compact('delivery'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->download("Delivery-{$delivery->reference_no}.pdf");
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\Adjustment;
 use App\Models\StockLedger;
 use App\Models\Location;
@@ -38,9 +39,10 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $locations = Location::all();
+        $locations  = Location::all();
+        $categories = ProductCategory::orderBy('name')->pluck('name');
 
-        return view('products.create', compact('locations'));
+        return view('products.create', compact('locations', 'categories'));
     }
 
     /**
@@ -127,7 +129,9 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return view('products.edit', compact('product'));
+        $categories = ProductCategory::orderBy('name')->pluck('name');
+
+        return view('products.edit', compact('product', 'categories'));
     }
 
     /**
