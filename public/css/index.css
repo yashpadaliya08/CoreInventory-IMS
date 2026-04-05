@@ -305,3 +305,5 @@ input.form-control:focus, select.form-select:focus {
 .role-admin { background: rgba(239,68,68,0.12); color: #dc2626; border: 1px solid rgba(239,68,68,0.25); }
 .role-manager { background: rgba(245,158,11,0.12); color: #d97706; border: 1px solid rgba(245,158,11,0.25); }
 .role-staff { background: rgba(148,163,184,0.15); color: #475569; border: 1px solid rgba(148,163,184,0.25); }
+
+/* End of File */

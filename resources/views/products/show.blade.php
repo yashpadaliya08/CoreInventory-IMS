@@ -24,6 +24,9 @@
         </div>
         
         <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('products.labels', $product) }}" class="btn btn-outline-secondary d-flex align-items-center gap-2 fw-bold" style="height: 48px; border-radius: 10px;" target="_blank">
+                <i data-feather="tag" style="width: 16px;"></i> Print Labels
+            </a>
             @if(auth()->user() && auth()->user()->isManagerOrAbove())
                 <a href="{{ route('products.edit', $product) }}" class="btn btn-primary d-flex align-items-center gap-2 fw-bold" style="height: 48px; border-radius: 10px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
                     <i data-feather="edit-2" style="width: 16px;"></i> Edit Profile

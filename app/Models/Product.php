@@ -6,10 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'sku', 'category', 'unit_cost', 'selling_price', 'reorder_level'])
+            ->logOnlyDirty()
+            ->useLogName('product');
+    }
 
     // SoftDeletes requires timestamps — Product now tracks created_at/updated_at/deleted_at
     public $timestamps = true;
@@ -20,7 +30,17 @@ class Product extends Model
         'category',
         'unit_of_measure',
         'reorder_level',
+        'unit_cost',
+        'selling_price',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'unit_cost'     => 'decimal:2',
+            'selling_price' => 'decimal:2',
+        ];
+    }
 
     // ── Relationships ──────────────────────────────────────
 
@@ -49,6 +69,11 @@ class Product extends Model
         return $this->hasMany(Adjustment::class);
     }
 
+    public function purchaseOrderItems(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderItem::class);
+    }
+
     // ── Stock Calculation (NEVER stored on product) ────────
 
     /**
@@ -70,5 +95,16 @@ class Product extends Model
     {
         return (int) $this->stockLedgerEntries()
             ->sum('quantity_change');
+    }
+
+    /**
+     * Profit margin percentage: ((selling - cost) / cost) * 100
+     */
+    public function getProfitMarginAttribute(): float
+    {
+        if ($this->unit_cost == 0) {
+            return 0;
+        }
+        return round((($this->selling_price - $this->unit_cost) / $this->unit_cost) * 100, 2);
     }
 }

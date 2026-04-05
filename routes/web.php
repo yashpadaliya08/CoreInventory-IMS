@@ -11,6 +11,12 @@ use App\Http\Controllers\AdjustmentController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\VendorController;
+use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\BarcodeController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AlertController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,7 +56,12 @@ Route::middleware('auth')->group(function () {
     */
     Route::get('/',          [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
-    Route::get('/ledger',    [LedgerController::class, 'index'])->name('ledger.index');
+    Route::get('/ledger',       [LedgerController::class, 'index'])->name('ledger.index');
+    Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+    
+    // Alerts (Available to all authenticated users)
+    Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
+    Route::post('/alerts/quick-reorder', [AlertController::class, 'quickReorder'])->name('alerts.quickReorder');
 
     /*
     |----------------------------------------------------------------------
@@ -74,6 +85,27 @@ Route::middleware('auth')->group(function () {
 
         Route::get('adjustments',               [AdjustmentController::class, 'index'])->name('adjustments.index');
         Route::get('adjustments/{adjustment}',  [AdjustmentController::class, 'show'])->name('adjustments.show')->whereNumber('adjustment');
+
+        // Vendors (read)
+        Route::get('vendors',            [VendorController::class, 'index'])->name('vendors.index');
+        Route::get('vendors/{vendor}',   [VendorController::class, 'show'])->name('vendors.show')->whereNumber('vendor');
+
+        // Purchase Orders (read)
+        Route::get('purchase-orders',                  [PurchaseOrderController::class, 'index'])->name('purchase-orders.index');
+        Route::get('purchase-orders/{purchaseOrder}',  [PurchaseOrderController::class, 'show'])->name('purchase-orders.show')->whereNumber('purchaseOrder');
+
+        // Barcodes & QR Codes (Phase 7)
+        Route::get('products/{product}/labels',   [BarcodeController::class, 'labels'])->name('products.labels')->whereNumber('product');
+        Route::get('products/{product}/barcode',  [BarcodeController::class, 'barcodePng'])->name('products.barcode')->whereNumber('product');
+        Route::get('products/{product}/qrcode',   [BarcodeController::class, 'qrcodeSvg'])->name('products.qrcode')->whereNumber('product');
+
+        // Excel / CSV Exports (Phase 8)
+        Route::get('export/products',       [ExportController::class, 'products'])->name('export.products');
+        Route::get('export/products/csv',   [ExportController::class, 'productsCsv'])->name('export.products.csv');
+        Route::get('export/ledger',         [ExportController::class, 'ledger'])->name('export.ledger');
+        Route::get('export/ledger/csv',     [ExportController::class, 'ledgerCsv'])->name('export.ledger.csv');
+        Route::get('export/vendors',        [ExportController::class, 'vendors'])->name('export.vendors');
+        Route::get('export/vendors/csv',    [ExportController::class, 'vendorsCsv'])->name('export.vendors.csv');
     });
 
     /*
@@ -114,6 +146,22 @@ Route::middleware('auth')->group(function () {
         Route::get('adjustments/create',             [AdjustmentController::class, 'create'])->name('adjustments.create');
         Route::post('adjustments',                    [AdjustmentController::class, 'store'])->name('adjustments.store');
         Route::post('adjustments/{adjustment}/validate', [AdjustmentController::class, 'validateAdjustment'])->name('adjustments.validate');
+
+        // Vendors (create, edit)
+        Route::get('vendors/create',           [VendorController::class, 'create'])->name('vendors.create');
+        Route::post('vendors',                  [VendorController::class, 'store'])->name('vendors.store');
+        Route::get('vendors/{vendor}/edit',    [VendorController::class, 'edit'])->name('vendors.edit');
+        Route::put('vendors/{vendor}',          [VendorController::class, 'update'])->name('vendors.update');
+        Route::patch('vendors/{vendor}',        [VendorController::class, 'update']);
+
+        // Purchase Orders (create, edit, approve, cancel)
+        Route::get('purchase-orders/create',                       [PurchaseOrderController::class, 'create'])->name('purchase-orders.create');
+        Route::post('purchase-orders',                              [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
+        Route::get('purchase-orders/{purchaseOrder}/edit',         [PurchaseOrderController::class, 'edit'])->name('purchase-orders.edit');
+        Route::put('purchase-orders/{purchaseOrder}',              [PurchaseOrderController::class, 'update'])->name('purchase-orders.update');
+        Route::patch('purchase-orders/{purchaseOrder}',            [PurchaseOrderController::class, 'update']);
+        Route::post('purchase-orders/{purchaseOrder}/approve',     [PurchaseOrderController::class, 'approve'])->name('purchase-orders.approve');
+        Route::post('purchase-orders/{purchaseOrder}/cancel',      [PurchaseOrderController::class, 'cancel'])->name('purchase-orders.cancel');
     });
 
     /*
@@ -128,6 +176,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('deliveries/{delivery}',  [DeliveryController::class, 'destroy'])->name('deliveries.destroy');
         Route::delete('transfers/{transfer}',   [TransferController::class, 'destroy'])->name('transfers.destroy');
         Route::delete('adjustments/{adjustment}', [AdjustmentController::class, 'destroy'])->name('adjustments.destroy');
+
+        // Procurement destructive
+        Route::delete('vendors/{vendor}',                      [VendorController::class, 'destroy'])->name('vendors.destroy');
+        Route::delete('purchase-orders/{purchaseOrder}',       [PurchaseOrderController::class, 'destroy'])->name('purchase-orders.destroy');
 
         // Infrastructure settings
         Route::get('/settings',                          [SettingController::class, 'index'])->name('settings.index');

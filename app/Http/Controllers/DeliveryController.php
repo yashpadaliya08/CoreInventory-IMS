@@ -154,36 +154,37 @@ class DeliveryController extends Controller
             return back()->withErrors(['status' => 'This delivery has already been validated.']);
         }
 
-        $delivery->load('deliveryItems');
+        // Eager-load items WITH their product for stock checks
+        $delivery->load('deliveryItems.product');
 
-        return DB::transaction(function () use ($delivery) {
-            // Retrieve default Location
-            $location = Location::firstOrCreate(
-                ['name' => 'Main Warehouse'],
-                [
-                    'warehouse_id' => \App\Models\Warehouse::firstOrCreate(
-                        ['name' => 'Main Facility'],
-                        ['code' => 'MAIN']
-                    )->id,
-                    'type' => 'internal'
-                ]
-            );
+        // Retrieve (or create) default output location
+        $location = Location::firstOrCreate(
+            ['name' => 'Main Warehouse'],
+            [
+                'warehouse_id' => \App\Models\Warehouse::firstOrCreate(
+                    ['name' => 'Main Facility'],
+                    ['code' => 'MAIN']
+                )->id,
+                'type' => 'internal'
+            ]
+        );
 
-            // Check stock sufficiency before creating ledger entries
-            foreach ($delivery->deliveryItems as $item) {
-                $currentStock = StockLedger::where('product_id', $item->product_id)
-                    ->where('location_id', $location->id)
-                    ->sum('quantity_change');
+        // ── PRE-FLIGHT STOCK CHECK (outside transaction so we can redirect on failure) ──
+        foreach ($delivery->deliveryItems as $item) {
+            $currentStock = StockLedger::where('product_id', $item->product_id)
+                ->where('location_id', $location->id)
+                ->sum('quantity_change');
 
-                if ($currentStock < $item->quantity) {
-                    $product = $item->product;
-                    throw new \Exception(
-                        "Insufficient stock for product [{$product->sku}] at this location. " .
-                        "Available: {$currentStock}, Required: {$item->quantity}."
-                    );
-                }
+            if ($currentStock < $item->quantity) {
+                $sku = $item->product->sku ?? 'Unknown';
+                return back()->withErrors([
+                    'stock' => "Insufficient stock for [{$sku}]. Available: {$currentStock}, Required: {$item->quantity}."
+                ]);
             }
+        }
 
+        // ── COMMIT: Write ledger entries and mark Done ──
+        return DB::transaction(function () use ($delivery, $location) {
             foreach ($delivery->deliveryItems as $item) {
                 StockLedger::create([
                     'product_id'      => $item->product_id,
@@ -194,9 +195,7 @@ class DeliveryController extends Controller
                 ]);
             }
 
-            $delivery->update([
-                'status'       => 'Done',
-            ]);
+            $delivery->update(['status' => 'Done']);
 
             return redirect()->route('deliveries.show', $delivery)
                 ->with('success', 'Delivery validated. Stock ledger updated.');

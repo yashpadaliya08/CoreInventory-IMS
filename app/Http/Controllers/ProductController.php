@@ -19,8 +19,8 @@ class ProductController extends Controller
     {
         $products = Product::query()
             ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where('name', 'ilike', '%' . $request->search . '%')
-                  ->orWhere('sku', 'ilike', '%' . $request->search . '%');
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('sku', 'like', '%' . $request->search . '%');
             })
             ->when($request->filled('category'), function ($q) use ($request) {
                 $q->where('category', $request->category);
@@ -59,6 +59,8 @@ class ProductController extends Controller
             'category'        => ['nullable', 'string', 'max:100'],
             'unit_of_measure' => ['required', 'string', 'max:50'],
             'reorder_level'   => ['required', 'integer', 'min:0'],
+            'unit_cost'       => ['nullable', 'numeric', 'min:0'],
+            'selling_price'   => ['nullable', 'numeric', 'min:0'],
             'initial_stock'   => ['nullable', 'integer', 'min:0'],
         ]);
 
@@ -69,6 +71,8 @@ class ProductController extends Controller
                 'category'        => $validated['category'] ?? null,
                 'unit_of_measure' => $validated['unit_of_measure'],
                 'reorder_level'   => $validated['reorder_level'],
+                'unit_cost'       => $validated['unit_cost'] ?? 0,
+                'selling_price'   => $validated['selling_price'] ?? 0,
             ]);
 
             // If initial stock is provided, create an Adjustment + Ledger entry
@@ -144,7 +148,9 @@ class ProductController extends Controller
             'sku'             => ['required', 'string', 'max:100', 'unique:products,sku,' . $product->id],
             'category'        => ['nullable', 'string', 'max:100'],
             'unit_of_measure' => ['required', 'string', 'max:50'],
-            'reorder_level'   => ['required', 'integer', 'min:0']
+            'reorder_level'   => ['required', 'integer', 'min:0'],
+            'unit_cost'       => ['nullable', 'numeric', 'min:0'],
+            'selling_price'   => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $product->update($validated);

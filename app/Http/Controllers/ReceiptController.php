@@ -155,19 +155,19 @@ class ReceiptController extends Controller
 
         $receipt->load('receiptItems');
 
-        return DB::transaction(function () use ($receipt) {
-            // Retrieve default Location
-            $location = Location::firstOrCreate(
-                ['name' => 'Main Warehouse'],
-                [
-                    'warehouse_id' => \App\Models\Warehouse::firstOrCreate(
-                        ['name' => 'Main Facility'],
-                        ['code' => 'MAIN']
-                    )->id,
-                    'type' => 'internal'
-                ]
-            );
+        // Retrieve (or create) default input location
+        $location = Location::firstOrCreate(
+            ['name' => 'Main Warehouse'],
+            [
+                'warehouse_id' => \App\Models\Warehouse::firstOrCreate(
+                    ['name' => 'Main Facility'],
+                    ['code' => 'MAIN']
+                )->id,
+                'type' => 'internal'
+            ]
+        );
 
+        return DB::transaction(function () use ($receipt, $location) {
             foreach ($receipt->receiptItems as $item) {
                 StockLedger::create([
                     'product_id'      => $item->product_id,
@@ -178,9 +178,7 @@ class ReceiptController extends Controller
                 ]);
             }
 
-            $receipt->update([
-                'status'       => 'Done',
-            ]);
+            $receipt->update(['status' => 'Done']);
 
             return redirect()->route('receipts.show', $receipt)
                 ->with('success', 'Receipt validated. Stock ledger updated.');
