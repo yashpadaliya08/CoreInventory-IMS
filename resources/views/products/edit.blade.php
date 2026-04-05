@@ -60,27 +60,45 @@
                         <div class="col-md-6">
                             <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Measurement Unit <span class="text-danger">*</span></label>
                             <div class="position-relative">
-                                <i data-feather="rulers" style="position: absolute; top: 14px; left: 14px; color: var(--text-muted); width: 18px;"></i>
+                                <i data-feather="aperture" style="position: absolute; top: 14px; left: 14px; color: var(--text-muted); width: 18px;"></i>
                                 <select name="unit_of_measure" class="form-select form-glass" style="padding-left: 42px;" required>
                                     <option value="Units" {{ old('unit_of_measure', $product->unit_of_measure) == 'Units' ? 'selected' : '' }}>Units (pcs)</option>
                                     <option value="Kg" {{ old('unit_of_measure', $product->unit_of_measure) == 'Kg' ? 'selected' : '' }}>Kilograms (kg)</option>
                                     <option value="Liters" {{ old('unit_of_measure', $product->unit_of_measure) == 'Liters' ? 'selected' : '' }}>Liters (L)</option>
                                     <option value="Boxes" {{ old('unit_of_measure', $product->unit_of_measure) == 'Boxes' ? 'selected' : '' }}>Boxes</option>
-                                    <option value="pcs" {{ old('unit_of_measure', $product->unit_of_measure) == 'pcs' ? 'selected' : '' }}>Pieces (pcs)</option>
-                                    <option value="kg" {{ old('unit_of_measure', $product->unit_of_measure) == 'kg' ? 'selected' : '' }}>Kilograms (kg)</option>
-                                    <option value="liters" {{ old('unit_of_measure', $product->unit_of_measure) == 'liters' ? 'selected' : '' }}>Liters (L)</option>
-                                    <option value="boxes" {{ old('unit_of_measure', $product->unit_of_measure) == 'boxes' ? 'selected' : '' }}>Boxes</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="col-md-6 mt-4 pt-3 border-top w-100">
-                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Reorder Restock Level <span class="text-danger">*</span></label>
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Reorder Threshold <span class="text-danger">*</span></label>
                             <p class="text-muted small mb-2">Adjust the minimum inventory threshold alarm logic.</p>
                             <div class="position-relative" style="max-width: 300px;">
                                 <i data-feather="alert-triangle" style="position: absolute; top: 18px; left: 14px; color: var(--text-main); width: 22px;"></i>
                                 <input type="number" name="reorder_level" class="form-control form-glass" style="padding-left: 46px; height: 60px; font-size: 1.5rem; font-family: 'Outfit'; font-weight: 700; color: var(--primary);" value="{{ old('reorder_level', $product->reorder_level) }}" required min="0">
                             </div>
+                        </div>
+
+                        <div class="col-12 pt-3 border-top">
+                            <h6 class="mb-3" style="font-family: 'Outfit'; font-weight: 700; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">💰 Pricing</h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Unit Cost (₹)</label>
+                            <div class="position-relative">
+                                <i data-feather="trending-down" style="position: absolute; top: 14px; left: 14px; color: var(--text-muted); width: 18px;"></i>
+                                <input type="number" step="0.01" name="unit_cost" class="form-control form-glass" style="padding-left: 42px; font-family: 'Outfit'; font-weight: 700;" min="0" value="{{ old('unit_cost', $product->unit_cost) }}" placeholder="0.00">
+                            </div>
+                            <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">What you pay to purchase this product.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Selling Price (₹)</label>
+                            <div class="position-relative">
+                                <i data-feather="trending-up" style="position: absolute; top: 14px; left: 14px; color: var(--text-muted); width: 18px;"></i>
+                                <input type="number" step="0.01" name="selling_price" class="form-control form-glass" style="padding-left: 42px; font-family: 'Outfit'; font-weight: 700;" min="0" value="{{ old('selling_price', $product->selling_price) }}" placeholder="0.00">
+                            </div>
+                            <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">What you charge your customers.</small>
                         </div>
                     </div>
 

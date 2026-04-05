@@ -9,6 +9,7 @@ use App\Models\Transfer;
 use App\Models\Adjustment;
 use App\Models\StockLedger;
 use App\Models\Location;
+use App\Models\PurchaseOrder;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class DashboardController extends Controller
 
         $totalProducts = Product::count();
 
-        $lowStockCount = DB::table('products')
+        $lowStockData = DB::table('products')
             ->leftJoin('stock_ledger', function ($join) use ($locationId) {
                 $join->on('products.id', '=', 'stock_ledger.product_id');
                 if ($locationId) {
@@ -37,9 +38,28 @@ class DashboardController extends Controller
             ->select('products.id', 'products.reorder_level', DB::raw('COALESCE(SUM(stock_ledger.quantity_change), 0) as total_stock'))
             ->groupBy('products.id', 'products.reorder_level')
             ->havingRaw('COALESCE(SUM(stock_ledger.quantity_change), 0) < products.reorder_level')
-            ->get()->count();
+            ->get();
+            
+        $lowStockCount = $lowStockData->count();
+
+        // VALUATION: Total Warehouse Valuation (Stock * Unit Cost)
+        $totalValuation = DB::table('products')
+            ->join('stock_ledger', 'products.id', '=', 'stock_ledger.product_id')
+            ->when($locationId, function($q) use ($locationId) {
+                return $q->where('stock_ledger.location_id', $locationId);
+            })
+            ->select(DB::raw('SUM(stock_ledger.quantity_change * products.unit_cost) as total_value'))
+            ->value('total_value') ?? 0;
 
         $pendingReceipts = Receipt::whereNotIn('status', ['Done', 'Canceled'])->count();
+        
+        // VALUATION: Pending PO Value
+        $pendingPoValue = DB::table('purchase_orders')
+            ->join('purchase_order_items', 'purchase_orders.id', '=', 'purchase_order_items.purchase_order_id')
+            ->where('purchase_orders.status', 'Approved')
+            ->select(DB::raw('SUM(purchase_order_items.quantity * purchase_order_items.unit_cost) as pending_value'))
+            ->value('pending_value') ?? 0;
+
         $pendingDeliveries = Delivery::whereNotIn('status', ['Done', 'Canceled'])->count();
 
         $transfersQuery = Transfer::whereNotIn('status', ['Done', 'Canceled']);
@@ -80,15 +100,21 @@ class DashboardController extends Controller
             $trendOut[]    = (int) ($dailyMovements[$key]->stock_out ?? 0);
         }
 
-        // ── Chart 2: Product Category Distribution ─────────────
-        $categoryData = Product::select('category', DB::raw('COUNT(*) as count'))
-            ->whereNotNull('category')
-            ->groupBy('category')
-            ->orderByDesc('count')
+        // ── Chart 2: Product Category Distribution (By Valuation) ─────────────
+        $categoryData = DB::table('products')
+            ->join('stock_ledger', 'products.id', '=', 'stock_ledger.product_id')
+            ->when($locationId, function($q) use ($locationId) {
+                return $q->where('stock_ledger.location_id', $locationId);
+            })
+            ->select('products.category', DB::raw('SUM(stock_ledger.quantity_change * products.unit_cost) as category_value'))
+            ->whereNotNull('products.category')
+            ->groupBy('products.category')
+            ->having('category_value', '>', 0)
+            ->orderByDesc('category_value')
             ->get();
 
         $categoryLabels = $categoryData->pluck('category')->toArray();
-        $categoryCounts = $categoryData->pluck('count')->toArray();
+        $categoryCounts = $categoryData->pluck('category_value')->map(fn($v) => round($v, 2))->toArray();
 
         // ── Chart 3: Low Stock Ranking (Top 8 closest to reorder) ──
         $stockRanking = DB::table('products')
@@ -122,6 +148,8 @@ class DashboardController extends Controller
 
         return view('dashboard.index', compact(
             'totalProducts',
+            'totalValuation',
+            'pendingPoValue',
             'lowStockCount',
             'pendingReceipts',
             'pendingDeliveries',

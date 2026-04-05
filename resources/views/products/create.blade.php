@@ -77,7 +77,7 @@
                             </div>
                             <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">System warns when stock drops below this value.</small>
                         </div>
-                        
+
                         <div class="col-md-6 mt-5 border-start">
                             <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Initial Stock (Optional)</label>
                             <div class="position-relative">
@@ -85,6 +85,28 @@
                                 <input type="number" name="initial_stock" class="form-control form-glass" style="padding-left: 42px; font-family: 'Outfit'; font-weight: 700;" min="0" value="0">
                             </div>
                             <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Creates an automatic initial inventory adjustment.</small>
+                        </div>
+
+                        <div class="col-12 mt-4 pt-3 border-top">
+                            <h6 class="mb-3" style="font-family: 'Outfit'; font-weight: 700; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">💰 Pricing (Optional)</h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Unit Cost (₹)</label>
+                            <div class="position-relative">
+                                <i data-feather="trending-down" style="position: absolute; top: 14px; left: 14px; color: var(--text-muted); width: 18px;"></i>
+                                <input type="number" step="0.01" name="unit_cost" class="form-control form-glass" style="padding-left: 42px; font-family: 'Outfit'; font-weight: 700;" min="0" value="{{ old('unit_cost', 0) }}" placeholder="0.00">
+                            </div>
+                            <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">What you pay to purchase this product.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Selling Price (₹)</label>
+                            <div class="position-relative">
+                                <i data-feather="trending-up" style="position: absolute; top: 14px; left: 14px; color: var(--text-muted); width: 18px;"></i>
+                                <input type="number" step="0.01" name="selling_price" class="form-control form-glass" style="padding-left: 42px; font-family: 'Outfit'; font-weight: 700;" min="0" value="{{ old('selling_price', 0) }}" placeholder="0.00">
+                            </div>
+                            <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">What you charge your customers.</small>
                         </div>
                     </div>
 

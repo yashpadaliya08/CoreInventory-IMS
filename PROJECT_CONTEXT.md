@@ -1,7 +1,7 @@
 # CoreInventory – Project Context & Technical Plan
 
-> **Last Updated:** 2026-03-28  
-> **Stack:** Laravel 12 · PHP 8.2+ · MySQL · Vite · Blade Templates
+> **Last Updated:** 2026-04-04  
+> **Stack:** Laravel 12 · PHP 8.2+ · MySQL · Vite · Blade Templates · Bootstrap 5.3
 
 ---
 
@@ -14,58 +14,70 @@
 
 ### ✅ Phase 1: Authentication & Role-Based Access Control (RBAC)
 - Expanded the `users` table to support `admin` and `staff` roles alongside `manager`.
-- Created robust `RoleMiddleware.php` to securely gate HTTP requests based on hierarchy:
-  - **Admin:** Full CRUD, User Management, Infrastructure / Warehouse Settings.
-  - **Manager:** Can read, create, edit, and validate stock movements. Cannot delete or access settings.
-  - **Staff:** Read-only access and ability to draft documents.
-- Split `routes/web.php` into strictly defined tiered middleware groups.
-- Transformed generic UI buttons into conditional Blade buttons using new User model helpers (`isAdmin()`, `isManagerOrAbove()`).
-- Migrated password reset OTP from fragile PHP Session storage into a robust Database storage system with Rate Limiting.
-- Created `UserManagementController` and an Admin-only dashboard for managing staff inside the IMS.
+- Created robust `RoleMiddleware.php` to securely gate HTTP requests based on hierarchy.
+- Admin-only dashboard for managing staff inside the IMS.
 
 ### ✅ Phase 2: Data Integrity & Hardening
-- Implemented **SoftDeletes** across 7 core system tables (`products`, `warehouses`, `locations`, `receipts`, `deliveries`, `transfers`, `adjustments`). 
-- If a product or location is deleted by an Admin, it is simply hidden from UI but retained in the DB. This guarantees the `stock_ledger` mathematical history is **never corrupted** by orphaned ledger pointers.
-- Added `created_at` and `updated_at` timestamps to all models to natively support Eloquent's advanced tracking features.
+- Implemented **SoftDeletes** across 7 core system tables.
+- Added `created_at` and `updated_at` timestamps to all models.
 
 ### ✅ Phase 3: Database Seeding & Demo Data 
-- Created an organized set of dependency-aware Database Seeders:
-  1. `UserSeeder`: Creates standard mock users for Admin, Manager, and Staff.
-  2. `WarehouseSeeder`: Creates 2 dynamic warehouses with Input/Output/Internal zones.
-  3. `ProductSeeder`: Creates 11 varied products (Raw Mats, Finished Goods, Consumables).
-  4. `ReceiptSeeder` & `MovementSeeder`: Simulates realistic historical operations (validated stock entering, leaving, and moving within the system to populate the stock ledger correctly).
+- Created an organized set of dependency-aware Database Seeders (`UserSeeder`, `WarehouseSeeder`, `ProductSeeder`, etc.).
+
+### ✅ Phase 4: Production Readiness
+- Fixed core validation issues during receipts/deliveries.
+- Switched to MySQL compatibility (standard SQL `like` operations instead of Postgres-specific ones).
+- Improved database exception handling so transactions don't result in silent 500 errors.
+
+### ✅ Phase 6: Vendor & Purchase Order Management (Procurement)
+- Full CRUD for Vendors with soft deletes.
+- Purchase Order lifecycle (`Draft` → `Approved` → `Cancelled`).
+- PO Approval automatically generates a Receipt draft and reflects accurate unit costs.
+
+### ✅ Phase 7: Barcode & QR Code Integration
+- Integrated `picqer/php-barcode-generator` and `bacon/bacon-qr-code`.
+- Beautiful label generation view for single and bulk A4 printing with real-world formatting.
+
+### ✅ Phase 8: Excel / CSV Exporting
+- Integrated `maatwebsite/excel`.
+- Build comprehensive export classes (`ProductsExport`, `LedgerExport`, `VendorsExport`).
+- Added UX-friendly `.xlsx` and `.csv` download buttons strategically across data-heavy index views.
+
+### ✅ Phase 9: Activity Audit Logging
+- Implemented `spatie/laravel-activitylog` for automated accountability.
+- Models (Product, Vendor, PO, Receipt, Delivery) now log creates, updates, and deletes with old vs new dirty values.
+- Built a searchable, filterable Activity Log UI with color-coded event badges.
+
+### ✅ Phase 10: Realistic Industrial Data Seeding
+- Wrote `FreshDataSeeder` which wipes the database and inserts highly-accurate data.
+- Includes Indian supply chain vendors, construction & electrical products, real POs, automated ledger calculation flows.
 
 ---
 
 ## 3. Project Roadmap / What To Build Next
 
-If you are picking this project back up, these are the recommended immediate next steps:
+These are the recommended immediate next steps:
 
-### 🚀 Phase 4: Production Readiness (High Priority)
-1. **Disable Global Debugging:** Turn `APP_DEBUG=false` in the `.env` file to prevent raw stack traces from exposing system architecture.
-2. **Setup Asynchronous Queues:** The current OTP mailing process is synchronous (making password resets slow). Set up Laravel Queues (`php artisan queue:work`) to handle outbound emails in the background.
-3. **Connect Real SMTP Mailer:** Switch mailers from the local `.log` file to a real production SMTP service (SendGrid, Mailgun) for password resets.
-4. **Optimize Boot Times:** Run `php artisan optimize` to compress routes, config, and views for production speeds.
+### 📊 Phase 11: Dashboard Analytics & Charts (Up Next)
+1. **Interactive Charts:** Integrate Chart.js to map out stock value, inbound/outbound monthly trends, and low-stock alerts visually.
+2. **Recent Activity Feed:** Bring Spatie's activity log to the dashboard for an instant overview of operations.
+3. **KPI Widgets:** Live dynamic calculations of Total Valuation, Pending Deliveries, Pending POs.
 
-### 🛠️ Phase 5: Reporting Engine & Settings
-1. **Advanced PDF Generation:** Introduce a library like `barryvdh/laravel-dompdf` so managers can click "Export" on any Delivery/Receipt to generate printable physical manifests for truck drivers and receivers.
-2. **Live Charting:** Add Chart.js to the Dashboard so admins can see visual throughput trends (e.g., total items dispatched over the last 30 days).
-3. **Deep Settings UI:** Wire up the backend settings controller so Admins can freely define custom product categories and internal company data (Logo, Company Tax ID).
+### 🔔 Phase 12: Low Stock Alert UI
+Dedicated UI for products dropping below `reorder_level` with one-click PO draft generation per vendor.
 
-### 🤖 Phase 6: Model Context Protocol (MCP) Integration
-Integrate standard AI dev tools seamlessly into the CoreInventory ecosystem by linking the local repository with `Claude Desktop` via MCP:
-- **MySQL Database Server:** Connect live DB to standard LLMs to run complex natural language stock queries.
-- **Filesystem Server:** Grant the AI full local file manipulation for immediate codebase upgrades without copy/pasting payload files.
+### 🌙 Phase 13: Dark Mode Toggle
+Implement a user-controlled CSS variable theme switch for dark mode functionality.
 
 ---
 
 ## 4. Key Quick Reference
 
-*   **Database Setup:** `php artisan migrate:fresh --seed`
+*   **Database Setup:** `php artisan db:seed --class=FreshDataSeeder --force`
 *   **Routing File:** `routes/web.php`
 *   **Role Logic:** `app/Models/User.php` and `app/Http/Middleware/RoleMiddleware.php`
 
 **Demo Login Credentials:**
-*   **Admin:** `admin@coreinventory.local` / `Admin@12345`
-*   **Manager:** `manager@coreinventory.local` / `Manager@12345`
-*   **Staff:** `staff@coreinventory.local` / `Staff@12345`
+*   **Admin:** `admin@coreinventory.local` / `Admin@12345`  _(Full Access)_
+*   **Manager:** `manager@coreinventory.local` / `Manager@12345` _(Operations)_
+*   **Staff:** `staff@coreinventory.local` / `Staff@12345` _(Read-only/Drafts)_

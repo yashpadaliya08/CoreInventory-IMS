@@ -43,6 +43,14 @@
             <h2 class="m-0" style="font-family: 'Outfit'; font-weight: 700; font-size: 2rem; color: var(--text-main); letter-spacing: -0.5px;">Move History Ledger</h2>
             <p class="text-muted m-0 mt-1" style="font-size: 1rem;">Immutable audit trail of all automated stock movements.</p>
         </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('export.ledger') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2" style="height: 44px; padding: 0 20px; font-weight: 600; border-radius: 10px;">
+                <i data-feather="download" style="width: 16px;"></i> Excel
+            </a>
+            <a href="{{ route('export.ledger.csv') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2" style="height: 44px; padding: 0 20px; font-weight: 600; border-radius: 10px;">
+                <i data-feather="file-text" style="width: 16px;"></i> CSV
+            </a>
+        </div>
     </div>
 
     <div class="filter-panel">

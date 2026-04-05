@@ -43,11 +43,19 @@
             <h2 class="m-0" style="font-family: 'Outfit'; font-weight: 700; font-size: 2rem; color: var(--text-main); letter-spacing: -0.5px;">Products Master</h2>
             <p class="text-muted m-0 mt-1" style="font-size: 1rem;">Manage your catalog, stock limits, and categories.</p>
         </div>
-        @if(auth()->user() && auth()->user()->isManagerOrAbove())
-        <a href="{{ route('products.create') }}" class="btn btn-primary d-flex align-items-center gap-2" style="height: 44px; padding: 0 24px;">
-            <i data-feather="plus" style="width: 18px;"></i> Create Product
-        </a>
-        @endif
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('export.products') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2" style="height: 44px; padding: 0 20px; font-weight: 600; border-radius: 10px;">
+                <i data-feather="download" style="width: 16px;"></i> Excel
+            </a>
+            <a href="{{ route('export.products.csv') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2" style="height: 44px; padding: 0 20px; font-weight: 600; border-radius: 10px;">
+                <i data-feather="file-text" style="width: 16px;"></i> CSV
+            </a>
+            @if(auth()->user() && auth()->user()->isManagerOrAbove())
+            <a href="{{ route('products.create') }}" class="btn btn-primary d-flex align-items-center gap-2" style="height: 44px; padding: 0 24px;">
+                <i data-feather="plus" style="width: 18px;"></i> Create Product
+            </a>
+            @endif
+        </div>
     </div>
 
     <div class="filter-panel">

@@ -199,22 +199,47 @@
     </form>
 </div>
 
-<!-- KPI Grid -->
+<!-- KPI Grid Row 1: Valuations -->
+<div class="row g-4 mb-4">
+    <!-- Total Valuation -->
+    <div class="col-xl-6 col-md-6">
+        <div class="card kpi-card delay-1 p-4" style="background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(255,255,255,0.8) 100%) !important; border: 1px solid rgba(99,102,241,0.3);">
+            <div class="icon-wrapper" style="background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(99,102,241,0.3);">
+                <i data-feather="dollar-sign"></i>
+            </div>
+            <div class="kpi-label">Total Warehouse Valuation</div>
+            <div class="kpi-value" style="color: var(--primary);">₹{{ number_format($totalValuation, 2) }}</div>
+        </div>
+    </div>
+    
+    <!-- Pending PO Value -->
+    <div class="col-xl-6 col-md-6">
+        <div class="card kpi-card delay-2 p-4" style="background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(255,255,255,0.8) 100%) !important; border: 1px solid rgba(236,72,153,0.3);">
+            <div class="icon-wrapper" style="background: var(--secondary); color: white; box-shadow: 0 8px 20px rgba(236,72,153,0.3);">
+                <i data-feather="trending-up"></i>
+            </div>
+            <div class="kpi-label">Value of Pending Inbound POs</div>
+            <div class="kpi-value" style="color: var(--secondary);">₹{{ number_format($pendingPoValue, 2) }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- KPI Grid Row 2: Operational -->
 <div class="row g-4 mb-4">
     <!-- Total Products -->
-    <div class="col-xl-4 col-md-6">
-        <div class="card kpi-card delay-1 p-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card kpi-card delay-3 p-4">
             <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: var(--primary);">
                 <i data-feather="package"></i>
             </div>
-            <div class="kpi-label">Active Products</div>
+            <div class="kpi-label">Active SKUs</div>
             <div class="kpi-value">{{ $totalProducts }}</div>
         </div>
     </div>
     
     <!-- Low Stock (Dynamic Alert State) -->
-    <div class="col-xl-4 col-md-6">
-        <div class="card kpi-card delay-2 p-4 {{ $lowStockCount > 0 ? 'kpi-alert' : '' }}">
+    <div class="col-xl-3 col-md-6">
+        <div class="card kpi-card delay-4 p-4 {{ $lowStockCount > 0 ? 'kpi-alert' : '' }}">
             <div class="icon-wrapper" style="background: {{ $lowStockCount > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.1)' }}; color: {{ $lowStockCount > 0 ? '#dc2626' : '#16a34a' }};">
                 <i data-feather="{{ $lowStockCount > 0 ? 'alert-triangle' : 'check-circle' }}"></i>
             </div>
@@ -224,35 +249,35 @@
     </div>
     
     <!-- Pending Receipts -->
-    <div class="col-xl-4 col-md-4">
-        <div class="card kpi-card delay-3 p-4">
-            <div class="icon-wrapper" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
-                <i data-feather="arrow-down-circle"></i>
+    <div class="col-xl-2 col-md-4">
+        <div class="card kpi-card delay-5 p-4">
+            <div class="icon-wrapper" style="width: 45px; height: 45px; background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
+                <i data-feather="arrow-down-circle" style="width: 20px; height: 20px;"></i>
             </div>
-            <div class="kpi-label">Awaiting Receipt</div>
-            <div class="kpi-value">{{ $pendingReceipts }}</div>
+            <div class="kpi-label" style="font-size: 0.7rem;">Awaiting Receipt</div>
+            <div class="kpi-value" style="font-size: 2.2rem;">{{ $pendingReceipts }}</div>
         </div>
     </div>
     
     <!-- Pending Deliveries -->
-    <div class="col-xl-6 col-md-4">
-        <div class="card kpi-card delay-4 p-4">
-            <div class="icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                <i data-feather="arrow-up-right"></i>
+    <div class="col-xl-2 col-md-4">
+        <div class="card kpi-card delay-6 p-4">
+            <div class="icon-wrapper" style="width: 45px; height: 45px; background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                <i data-feather="arrow-up-right" style="width: 20px; height: 20px;"></i>
             </div>
-            <div class="kpi-label">Pending Deliveries</div>
-            <div class="kpi-value">{{ $pendingDeliveries }}</div>
+            <div class="kpi-label" style="font-size: 0.7rem;">Pending Delivery</div>
+            <div class="kpi-value" style="font-size: 2.2rem;">{{ $pendingDeliveries }}</div>
         </div>
     </div>
     
     <!-- Scheduled Transfers -->
-    <div class="col-xl-6 col-md-4">
-        <div class="card kpi-card delay-5 p-4">
-            <div class="icon-wrapper" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                <i data-feather="repeat"></i>
+    <div class="col-xl-2 col-md-4">
+        <div class="card kpi-card delay-7 p-4">
+            <div class="icon-wrapper" style="width: 45px; height: 45px; background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                <i data-feather="repeat" style="width: 20px; height: 20px;"></i>
             </div>
-            <div class="kpi-label">Scheduled Transfers</div>
-            <div class="kpi-value">{{ $scheduledTransfers }}</div>
+            <div class="kpi-label" style="font-size: 0.7rem;">Transfers</div>
+            <div class="kpi-value" style="font-size: 2.2rem;">{{ $scheduledTransfers }}</div>
         </div>
     </div>
 </div>
@@ -272,7 +297,7 @@
     <!-- Category Doughnut -->
     <div class="col-xl-4">
         <div class="chart-card delay-7">
-            <h3 class="chart-title">Products by Category</h3>
+            <h3 class="chart-title">Global Wealth by Category (Valuation)</h3>
             <div style="position: relative; height: 280px; width: 100%;">
                 <canvas id="categoryChart"></canvas>
             </div>
@@ -423,6 +448,20 @@
                 legend: {
                     position: 'bottom',
                     labels: { padding: 20 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(context.parsed);
+                            }
+                            return label;
+                        }
+                    }
                 }
             }
         }

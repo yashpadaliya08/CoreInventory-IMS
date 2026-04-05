@@ -36,6 +36,14 @@
                     <i data-feather="package" class="nav-icon"></i> Products
                 </a>
                 
+                <div class="nav-section-title">Procurement</div>
+                <a href="{{ route('vendors.index') }}" class="nav-item">
+                    <i data-feather="briefcase" class="nav-icon"></i> Vendors
+                </a>
+                <a href="{{ route('purchase-orders.index') }}" class="nav-item">
+                    <i data-feather="file-plus" class="nav-icon"></i> Purchase Orders
+                </a>
+
                 <div class="nav-section-title">Movements</div>
                 <a href="{{ route('receipts.index') }}" class="nav-item">
                     <i data-feather="arrow-down-circle" class="nav-icon"></i> Receipts
@@ -50,9 +58,18 @@
                     <i data-feather="sliders" class="nav-icon"></i> Adjustments
                 </a>
                 
-                <div class="nav-section-title">Reporting</div>
+                <div class="nav-section-title">Reporting & Alerts</div>
+                <a href="{{ route('alerts.index') ?? '#' }}" class="nav-item">
+                    <i data-feather="bell" class="nav-icon"></i> Low Stock Alerts
+                    @if(isset($globalLowStockCount) && $globalLowStockCount > 0)
+                        <span class="badge bg-danger ms-auto rounded-pill">{{ $globalLowStockCount }}</span>
+                    @endif
+                </a>
                 <a href="{{ route('ledger.index') }}" class="nav-item">
                     <i data-feather="activity" class="nav-icon"></i> Move History
+                </a>
+                <a href="{{ route('activity-log.index') }}" class="nav-item">
+                    <i data-feather="eye" class="nav-icon"></i> Audit Log
                 </a>
                 
                 @if(auth()->user() && auth()->user()->isAdmin())
@@ -66,8 +83,8 @@
                 @endif
             </div>
 
-            <div class="sidebar-footer">
-                <a href="{{ route('profile.index') }}" class="user-profile-preview">
+            <div class="sidebar-footer" style="flex-direction: column; gap: 16px;">
+                <a href="{{ route('profile.index') }}" class="user-profile-preview w-100">
                     <div class="user-avatar">
                         {{ substr(auth()->user()->name ?? 'G', 0, 1) }}
                     </div>
