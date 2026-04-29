@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.app', function ($view) {
             if (auth()->check()) {
                 $lowStockCount = DB::table('products')
+                    ->whereNull('products.deleted_at')
                     ->leftJoin('stock_ledger', 'products.id', '=', 'stock_ledger.product_id')
                     ->select('products.id', 'products.reorder_level')
                     ->groupBy('products.id', 'products.reorder_level')

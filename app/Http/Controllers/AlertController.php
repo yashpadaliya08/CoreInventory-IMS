@@ -16,8 +16,8 @@ class AlertController extends Controller
     public function index()
     {
         $lowStockProducts = DB::table('products')
+            ->whereNull('products.deleted_at')
             ->leftJoin('stock_ledger', 'products.id', '=', 'stock_ledger.product_id')
-            ->leftJoin('vendors', 'products.id', '=', DB::raw('(SELECT product_id FROM purchase_order_items JOIN purchase_orders ON purchase_orders.id = purchase_order_items.purchase_order_id WHERE purchase_orders.status = "Approved" LIMIT 1)')) // A rough join to get latest vendor, better done in code
             ->select(
                 'products.id',
                 'products.sku',
@@ -28,7 +28,7 @@ class AlertController extends Controller
             )
             ->groupBy('products.id', 'products.sku', 'products.name', 'products.reorder_level', 'products.unit_cost')
             ->havingRaw('COALESCE(SUM(stock_ledger.quantity_change), 0) < products.reorder_level')
-            ->orderByRaw('current_stock - products.reorder_level ASC') // Order by urgency
+            ->orderByRaw('COALESCE(SUM(stock_ledger.quantity_change), 0) - products.reorder_level ASC')
             ->get();
 
         // Let's get the most recent vendor for each product to allow quick reordering
