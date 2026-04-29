@@ -92,7 +92,8 @@
             <table class="table table-hover mb-0 align-middle">
                 <thead style="background: rgba(0,0,0,0.02);">
                     <tr>
-                        <th class="ps-4 border-0" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">SKU Number</th>
+                        <th class="ps-4 border-0" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; width: 60px;"></th>
+                        <th class="border-0" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">SKU Number</th>
                         <th class="border-0" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Product Details</th>
                         <th class="border-0" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Category</th>
                         <th class="border-0" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Unit</th>
@@ -105,6 +106,15 @@
                     @php $isLowStock = $product->total_stock < $product->reorder_level; @endphp
                     <tr class="{{ $isLowStock ? 'row-alert' : '' }}" style="transition: background 0.2s;">
                         <td class="ps-4">
+                            @if($product->image_url)
+                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(0,0,0,0.06);">
+                            @else
+                                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(99,102,241,0.07); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(99,102,241,0.12);">
+                                    <i data-feather="box" style="width: 18px; height: 18px; color: var(--primary); opacity: 0.5;"></i>
+                                </div>
+                            @endif
+                        </td>
+                        <td>
                             <a href="{{ route('products.show', $product->id) }}" class="sku-link">#{{ $product->sku }}</a>
                         </td>
                         <td>
@@ -130,7 +140,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <i data-feather="inbox" style="width: 48px; height: 48px; color: var(--text-muted); opacity: 0.5; margin-bottom: 16px;"></i>
                             <h5 style="font-family: 'Outfit'; font-weight: 600; color: var(--text-main);">No products found</h5>
                             <p class="text-muted" style="max-width: 300px; margin: 0 auto;">You haven't added any products yet, or none match your search criteria.</p>

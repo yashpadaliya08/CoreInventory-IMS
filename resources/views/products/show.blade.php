@@ -44,6 +44,13 @@
         </div>
     </div>
 
+    {{-- Product Image Banner --}}
+    @if($product->image_url)
+    <div class="glass-card mb-4" style="padding: 0; overflow: hidden; max-height: 280px;">
+        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" style="width: 100%; height: 280px; object-fit: cover; display: block;">
+    </div>
+    @endif
+
     <div class="row g-4 d-flex align-items-stretch">
         <div class="col-lg-5">
             <div class="glass-card h-100 mb-0">

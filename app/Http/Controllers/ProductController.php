@@ -9,6 +9,7 @@ use App\Models\StockLedger;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -62,9 +63,16 @@ class ProductController extends Controller
             'unit_cost'       => ['nullable', 'numeric', 'min:0'],
             'selling_price'   => ['nullable', 'numeric', 'min:0'],
             'initial_stock'   => ['nullable', 'integer', 'min:0'],
+            'product_image'   => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
         ]);
 
         return DB::transaction(function () use ($validated, $request) {
+            // Handle product image upload
+            $imagePath = null;
+            if ($request->hasFile('product_image')) {
+                $imagePath = $request->file('product_image')->store('products', 'public');
+            }
+
             $product = Product::create([
                 'name'            => $validated['name'],
                 'sku'             => $validated['sku'],
@@ -73,6 +81,7 @@ class ProductController extends Controller
                 'reorder_level'   => $validated['reorder_level'],
                 'unit_cost'       => $validated['unit_cost'] ?? 0,
                 'selling_price'   => $validated['selling_price'] ?? 0,
+                'image_path'      => $imagePath,
             ]);
 
             // If initial stock is provided, create an Adjustment + Ledger entry
@@ -151,8 +160,24 @@ class ProductController extends Controller
             'reorder_level'   => ['required', 'integer', 'min:0'],
             'unit_cost'       => ['nullable', 'numeric', 'min:0'],
             'selling_price'   => ['nullable', 'numeric', 'min:0'],
+            'product_image'   => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
         ]);
 
+        // Handle image upload: if a new image is uploaded, delete the old one
+        if ($request->hasFile('product_image')) {
+            if ($product->image_path) {
+                Storage::disk('public')->delete($product->image_path);
+            }
+            $validated['image_path'] = $request->file('product_image')->store('products', 'public');
+        }
+
+        // Handle image removal (user clicked "Remove Image")
+        if ($request->boolean('remove_image') && $product->image_path) {
+            Storage::disk('public')->delete($product->image_path);
+            $validated['image_path'] = null;
+        }
+
+        unset($validated['product_image']);
         $product->update($validated);
 
         return redirect()->route('products.show', $product)
@@ -164,6 +189,11 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        // Clean up the product image from storage before soft-deleting
+        if ($product->image_path) {
+            Storage::disk('public')->delete($product->image_path);
+        }
+
         $product->delete();
 
         return redirect()->route('products.index')

@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <form action="{{ route('products.update', $product) }}" method="POST">
+    <form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="row g-4 d-flex justify-content-center">
@@ -102,6 +102,43 @@
                         </div>
                     </div>
 
+                        <div class="col-12 pt-3 border-top">
+                            <h6 class="mb-3" style="font-family: 'Outfit'; font-weight: 700; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">🖼️ Product Image</h6>
+                        </div>
+
+                        <div class="col-12">
+                            @if($product->image_path)
+                            {{-- Current image strip --}}
+                            <div id="currentImageWrap" class="d-flex align-items-center gap-3 p-3 mb-3" style="background: rgba(99,102,241,0.04); border-radius: 10px; border: 1px solid rgba(99,102,241,0.1);">
+                                <img src="{{ $product->image_url }}" alt="Current Image" style="height: 72px; width: 72px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
+                                <div class="flex-grow-1">
+                                    <p class="mb-1 fw-bold" style="font-size: 0.85rem; color: var(--text-main);">Current product image</p>
+                                    <p class="mb-0 text-muted" style="font-size: 0.75rem;">Upload a new file below to replace it.</p>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="removeImageCheck" name="remove_image" value="1" onchange="toggleRemoveImage(this)">
+                                    <label class="form-check-label text-danger fw-bold" for="removeImageCheck" style="font-size: 0.8rem;">Remove Image</label>
+                                </div>
+                            </div>
+                            @endif
+
+                            <div id="imageDropZone" style="border: 2px dashed rgba(99,102,241,0.3); border-radius: 12px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(99,102,241,0.02);" onclick="document.getElementById('productImageInput').click()" ondragover="event.preventDefault(); this.style.borderColor='var(--primary)'; this.style.background='rgba(99,102,241,0.06)'" ondragleave="this.style.borderColor='rgba(99,102,241,0.3)'; this.style.background='rgba(99,102,241,0.02)'" ondrop="handleImageDrop(event)">
+                                <div id="imagePreviewWrap" style="display: none;">
+                                    <img id="imagePreview" src="" alt="Preview" style="max-height: 160px; max-width: 100%; border-radius: 8px; object-fit: contain; margin-bottom: 12px;">
+                                    <br>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); clearImage()">
+                                        <i data-feather="trash-2" style="width: 14px;"></i> Remove
+                                    </button>
+                                </div>
+                                <div id="imagePlaceholder">
+                                    <i data-feather="upload-cloud" style="width: 40px; height: 40px; color: var(--primary); opacity: 0.5; margin-bottom: 12px;"></i>
+                                    <p class="text-muted mb-1" style="font-weight: 600;">{{ $product->image_path ? 'Click to replace image' : 'Click or drag & drop an image here' }}</p>
+                                    <p class="text-muted" style="font-size: 0.8rem;">JPEG, PNG, WebP — Max 2MB</p>
+                                </div>
+                            </div>
+                            <input type="file" id="productImageInput" name="product_image" accept="image/jpeg,image/png,image/jpg,image/webp" style="display: none;" onchange="previewImage(this)">
+                        </div>
+
                     <div class="d-flex justify-content-end mt-5">
                         <button type="submit" class="btn btn-primary d-flex justify-content-center align-items-center gap-2 w-100" style="height: 54px; font-size: 1.1rem; border-radius: 12px; box-shadow: 0 8px 20px rgba(99,102,241,0.3);">
                             <i data-feather="upload-cloud"></i> Push Network Updates
@@ -113,3 +150,53 @@
     </form>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imagePreview').src = e.target.result;
+            document.getElementById('imagePreviewWrap').style.display = 'block';
+            document.getElementById('imagePlaceholder').style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function clearImage() {
+    document.getElementById('productImageInput').value = '';
+    document.getElementById('imagePreview').src = '';
+    document.getElementById('imagePreviewWrap').style.display = 'none';
+    document.getElementById('imagePlaceholder').style.display = 'block';
+}
+
+function handleImageDrop(event) {
+    event.preventDefault();
+    const dropZone = document.getElementById('imageDropZone');
+    dropZone.style.borderColor = 'rgba(99,102,241,0.3)';
+    dropZone.style.background = 'rgba(99,102,241,0.02)';
+    const files = event.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+        const input = document.getElementById('productImageInput');
+        const dt = new DataTransfer();
+        dt.items.add(files[0]);
+        input.files = dt.files;
+        previewImage(input);
+    }
+}
+
+function toggleRemoveImage(checkbox) {
+    const dropZone = document.getElementById('imageDropZone');
+    if (checkbox.checked) {
+        dropZone.style.opacity = '0.4';
+        dropZone.style.pointerEvents = 'none';
+        clearImage();
+    } else {
+        dropZone.style.opacity = '1';
+        dropZone.style.pointerEvents = 'auto';
+    }
+}
+</script>
+@endpush

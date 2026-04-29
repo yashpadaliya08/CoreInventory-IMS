@@ -32,6 +32,7 @@ class Product extends Model
         'reorder_level',
         'unit_cost',
         'selling_price',
+        'image_path',
     ];
 
     protected function casts(): array
@@ -106,5 +107,16 @@ class Product extends Model
             return 0;
         }
         return round((($this->selling_price - $this->unit_cost) / $this->unit_cost) * 100, 2);
+    }
+
+    /**
+     * Accessor: public URL of the product image.
+     * Returns null when no image has been uploaded yet.
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image_path
+            ? asset('storage/' . $this->image_path)
+            : null;
     }
 }
