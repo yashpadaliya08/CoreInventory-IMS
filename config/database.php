@@ -8,7 +8,7 @@ $mysqlSslMode = strtoupper(env('DB_OPTIONS_SSL_MODE', env('DB_SSLMODE', '')));
 $mysqlOptions = [];
 
 if (extension_loaded('pdo_mysql')) {
-    if ($mysqlSslCa) {
+    if ($mysqlSslCa && file_exists($mysqlSslCa)) {
         $mysqlOptions[(PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA)] = $mysqlSslCa;
     }
 
