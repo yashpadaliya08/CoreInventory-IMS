@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     git curl unzip libpq-dev libonig-dev libzip-dev zip \
     libpng-dev libjpeg-dev libfreetype6-dev pkg-config \
     && docker-php-ext-install pdo pdo_mysql mbstring zip gd \
+    && docker-php-ext-enable opcache \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
@@ -23,11 +24,12 @@ WORKDIR /var/www/html
 COPY . .
 COPY ca.pem /var/www/html/ca.pem
 
-# Install PHP dependencies and cache Laravel routes/views
+# Install PHP dependencies and cache Laravel config/routes/views
 RUN composer install --no-dev --optimize-autoloader \
+    && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache \
-    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/css
 
 EXPOSE 80
 CMD ["apache2-foreground"]
