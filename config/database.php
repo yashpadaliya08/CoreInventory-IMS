@@ -3,6 +3,20 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+$mysqlSslCa = env('MYSQL_ATTR_SSL_CA', env('MYSQL_SSL_CA', '/etc/ssl/certs/ca-certificates.crt'));
+$mysqlSslMode = strtoupper(env('DB_OPTIONS_SSL_MODE', env('DB_SSLMODE', '')));
+$mysqlOptions = [];
+
+if (extension_loaded('pdo_mysql')) {
+    if ($mysqlSslCa) {
+        $mysqlOptions[(PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA)] = $mysqlSslCa;
+    }
+
+    if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT') && in_array($mysqlSslMode, ['REQUIRED', 'VERIFY_CA', 'VERIFY_IDENTITY'], true)) {
+        $mysqlOptions[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+    }
+}
+
 return [
 
     /*
@@ -59,9 +73,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => $mysqlOptions,
         ],
 
         'mariadb' => [
@@ -79,9 +91,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => $mysqlOptions,
         ],
 
         'pgsql' => [
@@ -149,7 +159,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
