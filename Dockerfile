@@ -14,7 +14,7 @@ WORKDIR /var/www
 
 # Copy app files
 COPY . .
-
+COPY ca.pem /var/www/ca.pem
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
