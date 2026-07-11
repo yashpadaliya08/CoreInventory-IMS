@@ -12,8 +12,12 @@ if (extension_loaded('pdo_mysql')) {
         $mysqlOptions[(PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA)] = $mysqlSslCa;
     }
 
-    if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT') && in_array($mysqlSslMode, ['REQUIRED', 'VERIFY_CA', 'VERIFY_IDENTITY'], true)) {
-        $mysqlOptions[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+    if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+        if (in_array($mysqlSslMode, ['VERIFY_CA', 'VERIFY_IDENTITY'], true)) {
+            $mysqlOptions[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+        } elseif ($mysqlSslMode === 'REQUIRED') {
+            $mysqlOptions[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        }
     }
 }
 
