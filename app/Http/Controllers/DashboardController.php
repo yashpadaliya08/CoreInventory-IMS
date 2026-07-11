@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
 {
@@ -29,6 +30,7 @@ class DashboardController extends Controller
         $totalProducts = Product::count();
 
         $lowStockData = DB::table('products')
+            ->whereNull('products.deleted_at')
             ->leftJoin('stock_ledger', function ($join) use ($locationId) {
                 $join->on('products.id', '=', 'stock_ledger.product_id');
                 if ($locationId) {
@@ -44,6 +46,7 @@ class DashboardController extends Controller
 
         // VALUATION: Total Warehouse Valuation (Stock * Unit Cost)
         $totalValuation = DB::table('products')
+            ->whereNull('products.deleted_at')
             ->join('stock_ledger', 'products.id', '=', 'stock_ledger.product_id')
             ->when($locationId, function($q) use ($locationId) {
                 return $q->where('stock_ledger.location_id', $locationId);
@@ -55,6 +58,7 @@ class DashboardController extends Controller
         
         // VALUATION: Pending PO Value
         $pendingPoValue = DB::table('purchase_orders')
+            ->whereNull('purchase_orders.deleted_at')
             ->join('purchase_order_items', 'purchase_orders.id', '=', 'purchase_order_items.purchase_order_id')
             ->where('purchase_orders.status', 'Approved')
             ->select(DB::raw('SUM(purchase_order_items.quantity * purchase_order_items.unit_cost) as pending_value'))
@@ -102,6 +106,7 @@ class DashboardController extends Controller
 
         // ── Chart 2: Product Category Distribution (By Valuation) ─────────────
         $categoryData = DB::table('products')
+            ->whereNull('products.deleted_at')
             ->join('stock_ledger', 'products.id', '=', 'stock_ledger.product_id')
             ->when($locationId, function($q) use ($locationId) {
                 return $q->where('stock_ledger.location_id', $locationId);
@@ -118,6 +123,7 @@ class DashboardController extends Controller
 
         // ── Chart 3: Low Stock Ranking (Top 8 closest to reorder) ──
         $stockRanking = DB::table('products')
+            ->whereNull('products.deleted_at')
             ->leftJoin('stock_ledger', function ($join) use ($locationId) {
                 $join->on('products.id', '=', 'stock_ledger.product_id');
                 if ($locationId) {
@@ -138,13 +144,11 @@ class DashboardController extends Controller
         $stockCurrent  = $stockRanking->pluck('current_stock')->map(fn($v) => (int) $v)->toArray();
         $stockReorder  = $stockRanking->pluck('reorder_level')->map(fn($v) => (int) $v)->toArray();
 
-        // ── Chart 4: Recent Activity Summary ───────────────────
-        $recentActivity = [
-            'receipts'    => Receipt::where('status', 'Done')->count(),
-            'deliveries'  => Delivery::where('status', 'Done')->count(),
-            'transfers'   => Transfer::where('status', 'Done')->count(),
-            'adjustments' => Adjustment::where('status', 'Done')->count(),
-        ];
+        // ── Recent Activity Timeline ──────────────────────────
+        $recentActivities = Activity::with('causer', 'subject')
+            ->latest()
+            ->limit(10)
+            ->get();
 
         return view('dashboard.index', compact(
             'totalProducts',
@@ -160,7 +164,7 @@ class DashboardController extends Controller
             'trendLabels', 'trendIn', 'trendOut',
             'categoryLabels', 'categoryCounts',
             'stockLabels', 'stockCurrent', 'stockReorder',
-            'recentActivity'
+            'recentActivities'
         ));
     }
 }

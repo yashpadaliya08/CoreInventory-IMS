@@ -164,6 +164,98 @@
     .delay-7 { animation-delay: 0.7s; }
     .delay-8 { animation-delay: 0.8s; }
     .delay-9 { animation-delay: 0.9s; }
+
+    /* Live Activity Feed Styles */
+    .activity-feed-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        overflow-y: auto;
+        max-height: 380px;
+        padding-right: 4px;
+        margin-top: 10px;
+    }
+    .activity-feed-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    .activity-feed-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .activity-feed-container::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+    }
+    .activity-feed-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.15);
+    }
+    .activity-item {
+        display: flex;
+        gap: 14px;
+        position: relative;
+        padding-bottom: 4px;
+    }
+    .activity-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: 20px;
+        top: 40px;
+        bottom: 0;
+        width: 2px;
+        background: rgba(0, 0, 0, 0.05);
+    }
+    .activity-dot {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        z-index: 2;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+    .activity-dot svg {
+        width: 18px;
+        height: 18px;
+    }
+    .activity-details {
+        flex: 1;
+        min-width: 0;
+    }
+    .activity-user {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        color: var(--text-main);
+        font-size: 0.85rem;
+    }
+    .activity-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin: 2px 0 4px 0;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+    .activity-time {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    .event-badge {
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        margin-left: 6px;
+    }
+    .event-created { background: rgba(34,197,94,0.1); color: #16a34a; border: 1px solid rgba(34,197,94,0.2); }
+    .event-updated { background: rgba(245,158,11,0.1); color: #d97706; border: 1px solid rgba(245,158,11,0.2); }
+    .event-deleted { background: rgba(239,68,68,0.1); color: #dc2626; border: 1px solid rgba(239,68,68,0.2); }
 </style>
 @endpush
 
@@ -320,48 +412,64 @@
     <!-- Recent Activity -->
     <div class="col-xl-4">
         <div class="chart-card delay-9 h-100">
-            <h3 class="chart-title mb-0">Recent Activity Summary</h3>
-            
-            <div class="stat-row">
-                <div class="stat-icon" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
-                    <i data-feather="download"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Receipts Validated</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">{{ number_format($recentActivity['receipts']) }}</div>
-                </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="chart-title mb-0" style="margin-bottom: 0 !important;">Recent Activity</h3>
+                <a href="{{ route('activity-log.index') }}" class="text-decoration-none d-flex align-items-center gap-1" style="font-size: 0.75rem; font-weight: 700; color: var(--primary); font-family: 'Outfit'; text-transform: uppercase; letter-spacing: 0.5px; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+                    View Audit Log <i data-feather="arrow-right" style="width: 12px; height: 12px;"></i>
+                </a>
             </div>
             
-            <div class="stat-row">
-                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                    <i data-feather="upload"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Deliveries Completed</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">{{ number_format($recentActivity['deliveries']) }}</div>
-                </div>
+            <div class="activity-feed-container">
+                @forelse($recentActivities as $activity)
+                    @php
+                        $event = $activity->event ?? 'unknown';
+                        $dotBg = 'rgba(99, 102, 241, 0.1)';
+                        $dotColor = '#6366f1';
+                        $icon = 'activity';
+                        
+                        if ($event === 'created') {
+                            $dotBg = 'rgba(34, 197, 94, 0.1)';
+                            $dotColor = '#16a34a';
+                            $icon = 'plus-circle';
+                        } elseif ($event === 'updated') {
+                            $dotBg = 'rgba(245, 158, 11, 0.1)';
+                            $dotColor = '#d97706';
+                            $icon = 'edit-3';
+                        } elseif ($event === 'deleted') {
+                            $dotBg = 'rgba(239, 68, 68, 0.1)';
+                            $dotColor = '#dc2626';
+                            $icon = 'trash-2';
+                        }
+                    @endphp
+                    <div class="activity-item">
+                        <div class="activity-dot" style="background: {{ $dotBg }}; color: {{ $dotColor }};">
+                            <i data-feather="{{ $icon }}"></i>
+                        </div>
+                        <div class="activity-details">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="activity-user">
+                                    {{ $activity->causer ? $activity->causer->name : 'System' }}
+                                </span>
+                                <span class="activity-time">
+                                    {{ $activity->created_at->diffForHumans() }}
+                                </span>
+                            </div>
+                            <div class="activity-desc">
+                                {{ $activity->description }}
+                                <span class="event-badge event-{{ $event }}" style="font-size: 0.6rem; padding: 2px 6px;">
+                                    {{ $activity->log_name ? str_replace('_', ' ', $activity->log_name) : $event }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-5">
+                        <i data-feather="activity" style="width: 40px; height: 40px; color: var(--text-muted); opacity: 0.3; margin-bottom: 12px;"></i>
+                        <div style="font-family: 'Outfit'; font-weight: 600; color: var(--text-main); font-size: 0.9rem;">No Recent Activity</div>
+                        <div class="text-muted small">System activity will appear here as users perform operations.</div>
+                    </div>
+                @endforelse
             </div>
-            
-            <div class="stat-row">
-                <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                    <i data-feather="repeat"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Transfers Executed</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">{{ number_format($recentActivity['transfers']) }}</div>
-                </div>
-            </div>
-            
-            <div class="stat-row">
-                <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
-                    <i data-feather="sliders"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Adjustments Applied</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);">{{ number_format($recentActivity['adjustments']) }}</div>
-                </div>
-            </div>
-            
         </div>
     </div>
 </div>

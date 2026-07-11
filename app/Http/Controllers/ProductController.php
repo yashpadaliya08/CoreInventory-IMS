@@ -189,10 +189,9 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        // Clean up the product image from storage before soft-deleting
-        if ($product->image_path) {
-            Storage::disk('public')->delete($product->image_path);
-        }
+        // NOTE: Do NOT delete the product image here.
+        // Product uses SoftDeletes — the record may be restored later.
+        // Image cleanup should only happen on a permanent force-delete.
 
         $product->delete();
 

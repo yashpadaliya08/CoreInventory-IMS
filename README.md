@@ -20,16 +20,43 @@ CoreInventory is a full-stack, enterprise-grade Inventory Management System buil
 
 ---
 
-## 🔐 Demo Application Credentials
+## 🔐 Login Credentials
 
-The application uses Role-Based Access Control (RBAC). 
-You may log in to the test environment using the following accounts:
+> **Login URL:** `http://127.0.0.1:8001/login`
 
-| Role | Email | Password | Permissions |
-|----|-------|----------|-------------|
-| **Administrator** | `admin@coreinventory.local` | `Admin@12345` | Full system control, user management, and settings configuration. |
-| **Manager** | `manager@coreinventory.local` | `Manager@12345` | Operational supervision, approving POs, executing stock ledger movements. |
-| **Staff Member** | `staff@coreinventory.local` | `Staff@12345` | Real-time viewing and ability to draft preliminary tracking documents. |
+The application uses **Role-Based Access Control (RBAC)** with three predefined roles.
+Use any of the accounts below to access the system:
+
+### 👤 Admin Account
+| Field    | Value                          |
+|----------|--------------------------------|
+| **Email**    | `admin@coreinventory.local`    |
+| **Password** | `Admin@12345`                  |
+| **Role**     | Administrator                  |
+| **Access**   | Full system control — user management, settings, all CRUD operations |
+
+### 👤 Manager Account
+| Field    | Value                             |
+|----------|-----------------------------------|
+| **Email**    | `manager@coreinventory.local`     |
+| **Password** | `Manager@12345`                   |
+| **Role**     | Manager                           |
+| **Access**   | Operational supervision — approve POs, execute stock movements, no delete/settings |
+
+### 👤 Staff Account
+| Field    | Value                          |
+|----------|--------------------------------|
+| **Email**    | `staff@coreinventory.local`    |
+| **Password** | `Staff@12345`                  |
+| **Role**     | Staff                          |
+| **Access**   | View-only + draft document creation |
+
+#### Quick Reference Table
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin**   | `admin@coreinventory.local`   | `Admin@12345`   |
+| **Manager** | `manager@coreinventory.local` | `Manager@12345` |
+| **Staff**   | `staff@coreinventory.local`   | `Staff@12345`   |
 
 ---
 
@@ -57,9 +84,10 @@ php artisan db:seed --class=FreshDataSeeder --force
 
 4. **Serve the Application**
 ```bash
-php artisan serve
+php artisan serve --port=8001
 ```
-Application will be active at `http://localhost:8000`.
+Application will be active at `http://127.0.0.1:8001`.
+Login at: `http://127.0.0.1:8001/login`
 
 ---
 
