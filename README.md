@@ -1,16 +1,16 @@
-<img width="1920" height="1080" alt="3" src="https://github.com/user-attachments/assets/df521ab6-a30d-4758-9710-97e219587302" />
-<img width="1920" height="1080" alt="2" src="https://github.com/user-attachments/assets/5410227b-7aed-4b2e-b8b3-702b62591e9c" />
 <img width="1920" height="1080" alt="1" src="https://github.com/user-attachments/assets/14a2d4d4-341e-4d36-864c-0a7ef670a9ae" />
+<img width="1920" height="1080" alt="2" src="https://github.com/user-attachments/assets/5410227b-7aed-4b2e-b8b3-702b62591e9c" />
+<img width="1920" height="1080" alt="3" src="https://github.com/user-attachments/assets/df521ab6-a30d-4758-9710-97e219587302" />
+<img width="1920" height="1080" alt="4" src="https://github.com/user-attachments/assets/21cf115e-a86a-4bfc-971f-55aae6002423" />
+<img width="1920" height="1080" alt="5" src="https://github.com/user-attachments/assets/2294f439-d613-4ae6-952c-eb661328c913" />
+<img width="1920" height="1080" alt="6" src="https://github.com/user-attachments/assets/ab7ffb9b-b74f-473a-b4c3-864846a4fc61" />
+<img width="1920" height="1080" alt="7" src="https://github.com/user-attachments/assets/e81e0f22-9882-47a7-bb66-d909eb99f9b7" />
+<img width="1920" height="1080" alt="8" src="https://github.com/user-attachments/assets/6235f9e7-624e-4679-9243-637b9bbf6cfc" />
+<img width="1920" height="1080" alt="9" src="https://github.com/user-attachments/assets/4515e037-ea31-40f4-9b3f-5cd591c0def9" />
+<img width="1920" height="1080" alt="10" src="https://github.com/user-attachments/assets/53618cf0-5519-4c15-833c-bd0f0847900f" />
 <img width="1920" height="1080" alt="13" src="https://github.com/user-attachments/assets/2f5f3dff-a883-497e-a881-fa1327ee892b" />
 <img width="1920" height="1080" alt="12" src="https://github.com/user-attachments/assets/3724f8c2-661f-4e5c-beb2-de5f42a5e8be" />
 <img width="1920" height="1080" alt="11" src="https://github.com/user-attachments/assets/79f1eecb-bbdb-4992-9a6f-e534ac6e1f70" />
-<img width="1920" height="1080" alt="10" src="https://github.com/user-attachments/assets/53618cf0-5519-4c15-833c-bd0f0847900f" />
-<img width="1920" height="1080" alt="9" src="https://github.com/user-attachments/assets/4515e037-ea31-40f4-9b3f-5cd591c0def9" />
-<img width="1920" height="1080" alt="8" src="https://github.com/user-attachments/assets/6235f9e7-624e-4679-9243-637b9bbf6cfc" />
-<img width="1920" height="1080" alt="7" src="https://github.com/user-attachments/assets/e81e0f22-9882-47a7-bb66-d909eb99f9b7" />
-<img width="1920" height="1080" alt="6" src="https://github.com/user-attachments/assets/ab7ffb9b-b74f-473a-b4c3-864846a4fc61" />
-<img width="1920" height="1080" alt="5" src="https://github.com/user-attachments/assets/2294f439-d613-4ae6-952c-eb661328c913" />
-<img width="1920" height="1080" alt="4" src="https://github.com/user-attachments/assets/21cf115e-a86a-4bfc-971f-55aae6002423" />
 
 
 # CoreInventory — Enterprise Inventory Management System (IMS)
